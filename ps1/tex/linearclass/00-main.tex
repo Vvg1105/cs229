@@ -1,0 +1,30 @@
+\item \points{15} {\bf Linear Classification (logistic regression)}
+
+In this problem, we cover the linear classification task using logistic regression. The goal is to find a linear decision boundary that
+separates the data into two classes. We will consider two datasets, along with starter codes provided in the following
+files:
+\begin{center}
+\begin{itemize} %[label=\roman*.]
+	\item \url{src/linearclass/ds1_{train,valid}.csv}
+	\item \url{src/linearclass/ds2_{train,valid}.csv}
+        \item \url{src/linearclass/logreg.py}
+\end{itemize}
+\end{center}
+Each file contains $\nexp$ examples, one example $(x^{(i)}, y^{(i)})$ per row.
+In particular, the $i$-th row contains columns $x^{(i)}_1\in\Re$,
+$x^{(i)}_2\in\Re$, and $y^{(i)}\in\{0, 1\}$.
+
+Typically, a trained model is evaluated by its performance on the validation dataset. The validation dataset is a set of examples drawn from the same (or a similar) distribution as the training data. Intuitively, this is because we need the trained model to correctly predict the label for not only the training data, but also new samples from the same distribution.
+
+\begin{enumerate}
+	\input{linearclass/01-logreg}
+        \ifnum\solutions=1 {
+            \input{linearclass/01-logreg-sol}
+        } \fi
+
+	\input{linearclass/02-solve-logreg}
+        \ifnum\solutions=1 {
+            \input{linearclass/02-solve-logreg-sol}
+        } \fi
+
+\end{enumerate}
