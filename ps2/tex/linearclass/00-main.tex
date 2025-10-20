@@ -1,0 +1,49 @@
+\item \points{25} {\bf Linear Classifiers (GDA)}
+
+In PSET 1, you covered logistic regression in problem 3. In this problem, we apply a generative linear classifier, Gaussian discriminant
+analysis (GDA), on the same datasets. Both of the algorithms find a linear decision boundary that
+separates the data into two classes, but make different assumptions. Our goal
+in this problem is to get a deeper understanding of the similarities and
+differences (and, strengths and weaknesses) of these two algorithms.
+
+For this problem, we will consider the same two datasets, along with starter codes provided in the following
+files:
+\begin{center}
+\begin{itemize} %[label=\roman*.]
+	\item \url{src/linearclass/ds1_{train,valid}.csv}
+	\item \url{src/linearclass/ds2_{train,valid}.csv}
+        \item \url{src/linearclass/gda.py}
+\end{itemize}
+\end{center}
+Recall that each file contains $\nexp$ examples, one example $(x^{(i)}, y^{(i)})$ per row.
+In particular, the $i$-th row contains columns $x^{(i)}_1\in\Re$,
+$x^{(i)}_2\in\Re$, and $y^{(i)}\in\{0, 1\}$.
+
+\begin{enumerate}
+
+	\input{linearclass/01-gda}
+        \ifnum\solutions=1 {
+            \input{linearclass/01-gda-sol}
+        }\fi
+
+	\input{linearclass/02-gda-ll}
+        \ifnum\solutions=1 {
+            \input{linearclass/02-gda-ll-sol}
+        } \fi
+
+	\input{linearclass/03-solve-gda}
+        \ifnum\solutions=1 {
+            \input{linearclass/03-solve-gda-sol}
+        } \fi
+
+	\input{linearclass/04-plot-ds1}
+        \ifnum\solutions=1 {
+            \input{linearclass/04-plot-ds1-sol}
+        } \fi
+
+	\input{linearclass/05-transform}
+        \ifnum\solutions=1{
+            \input{linearclass/05-transform-sol}
+        }\fi
+
+\end{enumerate}
