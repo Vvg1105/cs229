@@ -15,10 +15,18 @@ def main(train_path, valid_path, save_path):
     x_train, y_train = util.load_dataset(train_path, add_intercept=False)
 
     # *** START CODE HERE ***
+    
+    model = GDA()
+    model.fit(x_train, y_train)
 
-    # Train a GDA classifier
-    # Plot decision boundary on validation set
-    # Use np.savetxt to save outputs from validation set to save_path
+    x_valid, y_valid = util.load_dataset(valid_path, add_intercept=False)
+
+    y_pred = model.predict(x_valid)
+
+    np.savetxt(save_path, y_pred)
+    plot_path = save_path.replace('.txt', '.png')
+    x_valid_with_intercept = util.add_intercept(x_valid)
+    util.plot(x_valid_with_intercept, y_valid, model.theta, plot_path)
 
     # *** END CODE HERE ***
 
@@ -56,10 +64,22 @@ class GDA:
             y: Training example labels. Shape (n_examples,).
         """
         # *** START CODE HERE ***
+        m, d = x.shape
 
-        # Find phi, mu_0, mu_1, and sigma
-        # Write theta in terms of the parameters
-        
+        phi = np.mean(y)
+
+        mu_0 = x[y == 0].mean(axis=0)
+        mu_1 = x[y == 1].mean(axis=0)
+
+        sigma = (x[y == 0] - mu_0).T @ (x[y == 0] - mu_0) + (x[y == 1] - mu_1).T @ (x[y == 1] - mu_1)
+
+        sigma = sigma / m
+
+        sigma_inv = np.linalg.inv(sigma)
+        theta_vec = sigma_inv @ (mu_1 - mu_0)
+        theta_0 = 0.5 * (mu_0.T @ sigma_inv @ mu_0) - 0.5 * (mu_1.T @ sigma_inv @ mu_1) + np.log(phi / (1 - phi))
+
+        self.theta = np.concatenate(([theta_0], theta_vec))
         # *** END CODE HERE ***
 
     def predict(self, x):
@@ -72,6 +92,10 @@ class GDA:
             Outputs of shape (n_examples,).
         """
         # *** START CODE HERE ***
+
+        x_matrix = util.add_intercept(x)
+        z = x_matrix @ self.theta
+        return 1 / (1 + np.exp(-z))
 
         # *** END CODE HERE
 

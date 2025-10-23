@@ -1,4 +1,5 @@
 import collections
+from turtle import st
 
 import numpy as np
 
@@ -21,6 +22,11 @@ def get_words(message):
 
     # *** START CODE HERE ***
 
+    words = message.split()
+    words = [word.lower() for word in words]
+
+    return words
+
     # *** END CODE HERE ***
 
 
@@ -41,6 +47,23 @@ def create_dictionary(messages):
     """
 
     # *** START CODE HERE ***
+
+    word_count = collections.defaultdict(int)
+
+    for message in messages:
+        words = get_words(message)
+        for word in words:
+            word_count[word] += 1
+    
+    dictionary = collections.defaultdict(int)
+    index = 0
+
+    for word, count in word_count.items():
+        if count >= 5:
+            dictionary[word] = index
+            index += 1
+    
+    return dictionary
 
     # *** END CODE HERE ***
 
@@ -67,6 +90,16 @@ def transform_text(messages, word_dictionary):
     """
     # *** START CODE HERE ***
 
+    matrix = np.zeros((len(messages), len(word_dictionary))) # where i is the message index and j is the index of the word in the dictionary
+
+    for i, message in enumerate(messages):
+        words = get_words(message)
+        for word in words:
+            if word in word_dictionary:
+                matrix[i, word_dictionary[word]] += 1
+    
+    return matrix
+
     # *** END CODE HERE ***
 
 
@@ -88,6 +121,37 @@ def fit_naive_bayes_model(matrix, labels):
 
     # *** START CODE HERE ***
 
+    X_spam = matrix[labels == 1]
+    X_ham = matrix[labels == 0]
+
+    laplace_alpha = 1
+
+    word_counts_spam = X_spam.sum(axis=0)
+    word_counts_ham = X_ham.sum(axis=0)
+
+    total_spam_words = word_counts_spam.sum()
+    total_ham_words = word_counts_ham.sum()
+
+    # Probability of getting a word w given that the email is spam is the count of w in spam emails + alpha (Laplace smoothing) / total spam words + alpha * voab size (since we added an additional count for each word)
+    p_word_given_spam = (word_counts_spam + laplace_alpha) / (total_spam_words + laplace_alpha * matrix.shape[1])
+    p_word_given_ham = (word_counts_ham + laplace_alpha) / (total_ham_words + laplace_alpha * matrix.shape[1])
+
+    phi = np.mean(labels)
+    log_phi = np.log(phi)
+    log_phi_ham = np.log(1 - phi)
+
+    log_p_word_given_spam = np.log(p_word_given_spam)
+    log_p_word_given_ham = np.log(p_word_given_ham)
+
+    model = {
+        "log_phi": log_phi,
+        "log_phi_ham": log_phi_ham,
+        "log_p_word_given_spam": log_p_word_given_spam,
+        "log_p_word_given_ham": log_p_word_given_ham,
+    }
+
+    return model
+
     # *** END CODE HERE ***
 
 
@@ -105,6 +169,18 @@ def predict_from_naive_bayes_model(model, matrix):
     """
     # *** START CODE HERE ***
 
+    log_phi = model["log_phi"]
+    log_phi_ham = model["log_phi_ham"]
+    log_p_word_given_spam = model["log_p_word_given_spam"]
+    log_p_word_given_ham = model["log_p_word_given_ham"]
+
+    log_scores_spam = log_phi + matrix @ log_p_word_given_spam
+    log_scores_ham = log_phi_ham + matrix @ log_p_word_given_ham
+
+    y_pred = (log_scores_spam > log_scores_ham).astype(int)
+
+    return y_pred
+
     # *** END CODE HERE ***
 
 
@@ -121,6 +197,25 @@ def get_top_five_naive_bayes_words(model, dictionary):
     Returns: A list of the top five most indicative words in sorted order with the most indicative first
     """
     # *** START CODE HERE ***
+    
+    log_p_word_given_spam = model["log_p_word_given_spam"]
+    log_p_word_given_ham = model["log_p_word_given_ham"]
+
+    log_ratios = log_p_word_given_spam - log_p_word_given_ham
+
+    top_5_indices = np.argsort(log_ratios)[::-1][:5]
+
+    index_to_word = collections.defaultdict(str)
+
+    for word, index in dictionary.items():
+        index_to_word[index] = word
+
+    top_5_words = []
+
+    for index in top_5_indices:
+        top_5_words.append(index_to_word[index])
+
+    return top_5_words
     
     # *** END CODE HERE ***
 

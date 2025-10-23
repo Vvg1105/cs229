@@ -1,5 +1,6 @@
 from __future__ import division, print_function
 import argparse
+import re
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import numpy as np
@@ -26,13 +27,17 @@ def init_centroids(num_clusters, image):
     """
 
     # *** START YOUR CODE ***
+    height, width, channels = image.shape
+    
+    # Each row is a pixel, and each column is a channel
+    pixels = image.reshape(height * width, channels).astype(np.float64)
 
-    raise NotImplementedError('init_centroids function not implemented')
+    random_indices = np.random.choice(height * width, size=num_clusters, replace=False)
 
+    centroid_pixels = pixels[random_indices]
+
+    return centroid_pixels
     # *** END YOUR CODE ***
-
-    return centroids_init
-
 
 def update_centroids(centroids, image, max_iter=30, print_every=10):
     """
@@ -56,14 +61,41 @@ def update_centroids(centroids, image, max_iter=30, print_every=10):
     """
 
     # *** START YOUR CODE ***
+    height, width, channels = image.shape
+    
+    # Convert to float to avoid integer rounding issues
+    pixels = image.reshape(height * width, channels).astype(np.float64)
 
-    raise NotImplementedError('update_centroids function not implemented')
-        # Usually expected to converge long before `max_iter` iterations
-                # Initialize `dist` vector to keep track of distance to every centroid
-                # Loop over all centroids and store distances in `dist`
-        # Update `new_centroids`
+    num_clusters = centroids.shape[0]
 
-    # *** END YOUR CODE ***
+    new_centroids = centroids.copy()
+
+    for i in range(max_iter):
+
+        distances = np.zeros((pixels.shape[0], num_clusters))
+
+        for cluster in range(num_clusters):
+
+            distance = np.linalg.norm(pixels - new_centroids[cluster], axis=1)
+
+            distances[:, cluster] = distance
+        
+        pixel_assign = np.argmin(distances, axis=1)
+
+        old_centroids = np.copy(new_centroids)
+
+        for cluster in range(num_clusters):
+
+            pixels_in_cluster = pixels[pixel_assign == cluster]
+
+            if len(pixels_in_cluster) > 0:
+                new_centroids[cluster] = pixels_in_cluster.mean(axis=0)
+        
+        if np.allclose(old_centroids, new_centroids):
+            break
+
+        if (i + 1) % print_every == 0:
+            print(f'Iteration {i + 1}/{max_iter} completed')
 
     return new_centroids
 
@@ -87,13 +119,17 @@ def update_image(image, centroids):
     """
 
     # *** START YOUR CODE ***
+    height, width, channels = image.shape
 
-    raise NotImplementedError('update_image function not implemented')
-            # Initialize `dist` vector to keep track of distance to every centroid
-            # Loop over all centroids and store distances in `dist`
-            # Find closest centroid and update pixel value in `image`
-            
-    # *** END YOUR CODE ***
+    for h in range(height):
+        for w in range(width):
+            pixel = image[h, w]
+
+            distances = np.linalg.norm(pixel - centroids, axis=1)
+
+            closest_centroid_idx = np.argmin(distances)
+
+            image[h, w] = centroids[closest_centroid_idx]
 
     return image
 
